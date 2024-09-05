@@ -62,7 +62,7 @@ uintptr_t FindDMAAddy(HANDLE hProc, uintptr_t ptr, const std::vector<unsigned in
 }
 
 int main() {
-    // Print ASCII art
+    // You can remove this
     std::cout << R"(
      _   _ ___ _  _______        __
     | \ | |_ _| |/ /_ _\ \      / /
@@ -71,7 +71,7 @@ int main() {
     |_| \_|___|_|\_\___|  \_/\_/   
     )" << std::endl;
 
-    DWORD procId = GetProcId(L"b1-Win64-Shipping.exe"); // Replace with the actual process name
+    DWORD procId = GetProcId(L"b1-Win64-Shipping.exe");
     if (procId == 0) {
         std::cout << "Game not running!" << std::endl;
         return 1;
