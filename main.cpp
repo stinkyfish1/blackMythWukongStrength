@@ -2,6 +2,8 @@
 #include <windows.h>
 #include <tlhelp32.h>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 // Function to convert wide string to ANSI string
 std::string WStringToString(const wchar_t* wstr) {
@@ -60,6 +62,15 @@ uintptr_t FindDMAAddy(HANDLE hProc, uintptr_t ptr, const std::vector<unsigned in
 }
 
 int main() {
+    // Print ASCII art
+    std::cout << R"(
+     _   _ ___ _  _______        __
+    | \ | |_ _| |/ /_ _\ \      / /
+    |  \| || || ' / | | \ \ /\ / / 
+    | |\  || || . \ | |  \ V  V /  
+    |_| \_|___|_|\_\___|  \_/\_/   
+    )" << std::endl;
+
     DWORD procId = GetProcId(L"b1-Win64-Shipping.exe"); // Replace with the actual process name
     if (procId == 0) {
         std::cout << "Game not running!" << std::endl;
@@ -78,13 +89,30 @@ int main() {
     std::vector<unsigned int> offsets = { 0x298, 0x4E8, 0x20, 0x98, 0x48, 0x60, 0x284 };
     uintptr_t strengthAddress = FindDMAAddy(hProcess, moduleBase + baseAddress, offsets);
 
-    int strengthValue;
-    ReadProcessMemory(hProcess, (BYTE*)strengthAddress, &strengthValue, sizeof(strengthValue), nullptr);
-    std::cout << "Current Strength: " << strengthValue << std::endl;
+    bool printed = false; // Flag to ensure message is printed only once
 
-    int newStrengthValue = 1132130304; // Replace with the desired strength value
-    WriteProcessMemory(hProcess, (BYTE*)strengthAddress, &newStrengthValue, sizeof(newStrengthValue), nullptr);
-    std::cout << "New Strength Value Set!" << std::endl;
+    while (true) {
+        int strengthValue;
+        if (ReadProcessMemory(hProcess, (BYTE*)strengthAddress, &strengthValue, sizeof(strengthValue), nullptr)) {
+            if (!printed) {
+                std::cout << "Current Strength: " << strengthValue << std::endl;
+                std::cout << "New Strength Value Set!" << std::endl;
+                printed = true; // Set flag to true after printing
+            }
+
+            int newStrengthValue = 1132130304; // Replace with the desired strength value
+            if (WriteProcessMemory(hProcess, (BYTE*)strengthAddress, &newStrengthValue, sizeof(newStrengthValue), nullptr)) {
+                // No need to print here; only print once
+            } else {
+                std::cout << "Failed to write new strength value." << std::endl;
+            }
+        } else {
+            std::cout << "Failed to read current strength value." << std::endl;
+        }
+
+        // Sleep for a short duration before updating again
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // Adjust the sleep duration as needed
+    }
 
     CloseHandle(hProcess);
     return 0;
