@@ -1,17 +1,11 @@
-# 🐵 Black Myth: Wukong Trainer
+# 🐵 How to run
 
-Welcome to the **Black Myth: Wukong Trainer**! This powerful tool lets you unleash the full potential of your character by modifying the strength attribute directly through C++. Get ready to dominate the battlefield with unparalleled might.
-
----
-
-## 🚀 Features
-
-- **Attribute Modification**: Customize your character's strength with precision.
-- **Real-time Updates**: See the effects immediately in-game as you adjust the strength attribute.
-- **User-Friendly Interface**: Simple and intuitive design for both beginners and advanced users.
-- **Safe and Secure**: Designed with safety checks to ensure a smooth gaming experience.
+1. Download the main cpp file. Change the strength stat to your liking. 
+2. Compile it and run the exe file.
 
 ---
+
+
 
 ### ⚠️ Disclaimer
 
