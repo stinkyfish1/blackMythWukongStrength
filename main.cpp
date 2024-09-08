@@ -5,7 +5,7 @@
 #include <chrono>
 #include <thread>
 
-// Function to convert wide string to ANSI string
+
 std::string WStringToString(const wchar_t* wstr) {
     int bufferSize = WideCharToMultiByte(CP_ACP, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
     std::string str(bufferSize, 0);
@@ -13,7 +13,7 @@ std::string WStringToString(const wchar_t* wstr) {
     return str;
 }
 
-// Function to get the process ID of a given process name
+
 DWORD GetProcId(const wchar_t* procName) {
     DWORD procId = 0;
     HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -32,7 +32,6 @@ DWORD GetProcId(const wchar_t* procName) {
     return procId;
 }
 
-// Function to get the base address of a module
 uintptr_t GetModuleBaseAddress(DWORD procId, const wchar_t* modName) {
     uintptr_t modBaseAddr = 0;
     HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, procId);
@@ -51,7 +50,7 @@ uintptr_t GetModuleBaseAddress(DWORD procId, const wchar_t* modName) {
     return modBaseAddr;
 }
 
-// Function to find the dynamic memory address
+
 uintptr_t FindDMAAddy(HANDLE hProc, uintptr_t ptr, const std::vector<unsigned int>& offsets) {
     uintptr_t addr = ptr;
     for (unsigned int i = 0; i < offsets.size(); ++i) {
@@ -62,16 +61,16 @@ uintptr_t FindDMAAddy(HANDLE hProc, uintptr_t ptr, const std::vector<unsigned in
 }
 
 int main() {
-    // You can remove this
+
     std::cout << R"(
-     _   _ ___ _  _______        __
-    | \ | |_ _| |/ /_ _\ \      / /
-    |  \| || || ' / | | \ \ /\ / / 
-    | |\  || || . \ | |  \ V  V /  
-    |_| \_|___|_|\_\___|  \_/\_/   
+                 _   _ ___ _  _______        __
+                | \ | |_ _| |/ /_ _\ \      / /
+                |  \| || || ' / | | \ \ /\ / / 
+                | |\  || || . \ | |  \ V  V /  
+                |_| \_|___|_|\_\___|  \_/\_/   
     )" << std::endl;
 
-    DWORD procId = GetProcId(L"b1-Win64-Shipping.exe");
+    DWORD procId = GetProcId(L"b1-Win64-Shipping.exe"); 
     if (procId == 0) {
         std::cout << "Game not running!" << std::endl;
         return 1;
@@ -84,25 +83,25 @@ int main() {
         return 1;
     }
 
-    uintptr_t moduleBase = GetModuleBaseAddress(procId, L"b1-Win64-Shipping.exe");
-    uintptr_t baseAddress = 0x1D909380; // Replace with the actual base address from Cheat Engine
-    std::vector<unsigned int> offsets = { 0x298, 0x4E8, 0x20, 0x98, 0x48, 0x60, 0x284 };
-    uintptr_t strengthAddress = FindDMAAddy(hProcess, moduleBase + baseAddress, offsets);
-
     bool printed = false; // Flag to ensure message is printed only once
 
     while (true) {
-        int strengthValue;
+        // Recalculate module base address and strength address in each iteration
+        uintptr_t moduleBase = GetModuleBaseAddress(procId, L"b1-Win64-Shipping.exe");
+        uintptr_t baseAddress = 0x1D909380; 
+        std::vector<unsigned int> offsets = { 0x298, 0x4E8, 0x20, 0x98, 0x48, 0x60, 0x284 };
+        uintptr_t strengthAddress = FindDMAAddy(hProcess, moduleBase + baseAddress, offsets);
+
+        float strengthValue;  // Reading as float
         if (ReadProcessMemory(hProcess, (BYTE*)strengthAddress, &strengthValue, sizeof(strengthValue), nullptr)) {
             if (!printed) {
-                std::cout << "Current Strength: " << strengthValue << std::endl;
-                std::cout << "New Strength Value Set!" << std::endl;
+                std::cout << "Current Strength (float): " << strengthValue << std::endl;
                 printed = true; // Set flag to true after printing
             }
 
-            int newStrengthValue = 1132130304; // Replace with the desired strength value
+            float newStrengthValue = 250.0f; 
             if (WriteProcessMemory(hProcess, (BYTE*)strengthAddress, &newStrengthValue, sizeof(newStrengthValue), nullptr)) {
-                // No need to print here; only print once
+                std::cout << "New Strength Value Set to: " << newStrengthValue << std::endl;
             } else {
                 std::cout << "Failed to write new strength value." << std::endl;
             }
@@ -110,8 +109,9 @@ int main() {
             std::cout << "Failed to read current strength value." << std::endl;
         }
 
+
         // Sleep for a short duration before updating again
-        std::this_thread::sleep_for(std::chrono::seconds(1)); // Adjust the sleep duration as needed
+        std::this_thread::sleep_for(std::chrono::seconds(1)); 
     }
 
     CloseHandle(hProcess);
